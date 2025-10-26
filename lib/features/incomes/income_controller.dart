@@ -2,18 +2,19 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:income_tracker_app/data/local/daos/income_dao.dart';
+import 'package:income_tracker_app/features/home/home_controller.dart';
+import 'package:income_tracker_app/utils/snackbar_helper.dart';
 import '../../data/local/app_database.dart';
 
 class IncomeController extends GetxController {
   static IncomeController get to => Get.find();
+
   late final AppDatabase db;
   late final IncomeDao incomeEntriesDAO;
-  var incomes = <IncomeEntryWithSource>[].obs;
   RxBool isLoading = false.obs;
   RxBool isLoadingTotals = false.obs;
 
-  var selectedSourceId = ''.obs;
-  var selectedConsumerId = ''.obs;
+  RxString selectedCategory = ''.obs;
 
   // Constructor for adding a new income entry
 
@@ -24,8 +25,8 @@ class IncomeController extends GetxController {
   RxDouble amountShared = 0.0.obs;
   RxDouble ownerShared = 0.0.obs;
   RxBool isRecurring = false.obs;
-  RxDouble totalIncome = 0.0.obs; 
-  RxInt totalCategories= 0.obs;
+  RxDouble totalIncome = 0.0.obs;
+  RxInt totalCategories = 0.obs;
   // Editing Controller for income entries
   TextEditingController descriptionController = TextEditingController();
   TextEditingController amountController = TextEditingController();
@@ -38,11 +39,10 @@ class IncomeController extends GetxController {
 
   @override
   void onInit() {
-    loadIncomeSources();
-    loadTotalCategories();
-    loadTotals();
-    loadMonthlyTotals();
     super.onInit();
+    incomeEntriesDAO.watchTotalIncome().listen((value) {
+      totalIncome.value = value;
+    });
 
     // Keep Rx values in sync with text controllers
     ever(description, (_) => descriptionController.text = description.value);
@@ -60,13 +60,6 @@ class IncomeController extends GetxController {
     });
   }
 
-
-  Future<void> loadIncomeSources() async {
-    isLoading.value = true;
-    incomes.value = await incomeEntriesDAO.getAllIncomeEntries();
-    isLoading.value = false;
-  }
-
   Future<void> computeSharedAmount() async {
     if (isShared.value && amount.value > 0 && sharePercent.value > 0) {
       final computed = amount.value * sharePercent.value;
@@ -78,55 +71,53 @@ class IncomeController extends GetxController {
     }
   }
 
-  Future<void> saveEntry(int sourceId, int consumerId) async {
+  Future<void> fetchTotalIncome() async {
+    isLoadingTotals.value = true;
+    try {
+      final total = await db.incomeDao.getTotalIncome();
+      totalIncome.value = total;
+    } catch (e) {
+      print('DEBUG: Failed to fetch total income: $e');
+    } finally {
+      isLoadingTotals.value = false;
+    }
+  }
+
+  Future<void> saveEntry() async {
     final newEntry = IncomeEntriesCompanion(
       amount: drift.Value(amount.value),
-      incomeSourceId: drift.Value(sourceId),
+      incomeCategory: drift.Value(selectedCategory.value),
       isShared: drift.Value(isShared.value),
       sharePercent: drift.Value(sharePercent.value),
       amountShared: drift.Value(amountShared.value),
-      incomeDate: drift.Value(DateTime.now()),
-      isRecurring: drift.Value(isRecurring.value),
-      recurringPattern: drift.Value(
-        isRecurring.value ? 'monthly' : null,
-      ), // Example pattern
-      currentConsumerId: drift.Value(consumerId),
     );
 
     try {
-      await db.into(db.incomeEntries).insert(newEntry);
+      await incomeEntriesDAO.insertIncome(newEntry);
+      Get.back(); // close bottom sheet
+      SnackbarHelper.showIncomeSaved();
+      await fetchTotalIncome(); // refresh list
+      // Update home controller's income entries
+      final homeCtrl = Get.find<HomeController>();
+      homeCtrl.incomeEntries.assignAll(
+        await homeCtrl.incomeDao.getAllIncomeEntries(),
+      );
+      resetForm();
     } catch (e) {
-      print('DEBUG: Insertion failed with error: $e');
+      SnackbarHelper.showError('Failed to save income. Please try again.');
+      return;
     }
-    await loadIncomeSources(); // Refresh the list after adding
-    await loadMonthlyTotals();
-    await loadTotals();
-  }
-
-    Future<void> loadMonthlyTotals() async {
-    totalIncome.value = await db.getMonthlyIncome(DateTime.now().year, DateTime.now().month); // ✅ call directly
-  }
-
-    Future<void> loadTotalCategories() async {
-    totalCategories.value = await db.getTotalCategories(); // ✅ call directly
-  }
-
-    Future<void> loadTotals() async {
-    totalIncome.value = await db.getTotalIncome(DateTime.now().year); // ✅ call directly
   }
 
   Future<void> deleteEntry(int id) async {
     try {
       await (db.delete(db.incomeEntries)..where((t) => t.id.equals(id))).go();
-      await loadIncomeSources(); // Refresh the list after deleting
     } catch (e) {
       print('DEBUG: Deletion failed with error: $e');
     }
   }
 
   void resetForm() {
-    selectedSourceId.value = 'none';
-    selectedConsumerId.value = 'none';
     description.value = '';
     amount.value = 0.0;
     isShared.value = false;

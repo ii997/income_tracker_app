@@ -10,10 +10,21 @@ class EmptyStateWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        LottieBuilder.asset('assets/lotties/empty_list.json', height: 250, width: 250, fit: BoxFit.cover,),
-         Text('No $categoryName found', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),),
-         const SizedBox(height: 10,),
-          Text('Tap the + button to add a new $categoryName.', style: TextStyle(fontSize: 14, color: Color(0xFF666666)),),
+        LottieBuilder.asset(
+          'assets/lotties/empty_list.json',
+          height: 200,
+          width: 200,
+          fit: BoxFit.cover,
+        ),
+        Text(
+          'No $categoryName found',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Tap the + button to add a new $categoryName.',
+          style: TextStyle(fontSize: 14, color: Color(0xFF666666)),
+        ),
       ],
     );
   }

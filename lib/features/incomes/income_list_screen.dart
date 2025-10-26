@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:income_tracker_app/features/income_sources/income_sources_controller.dart';
-import 'package:income_tracker_app/features/incomes/consumer_controller.dart';
 import 'package:income_tracker_app/features/incomes/income_controller.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import '../../shared/empty_state.dart';
 
 class IncomeListScreen extends StatefulWidget {
   const IncomeListScreen({super.key});
@@ -15,20 +12,13 @@ class IncomeListScreen extends StatefulWidget {
 
 class _IncomeListScreenState extends State<IncomeListScreen> {
   final incomeController = Get.find<IncomeController>();
-  final incomeSourcesController = Get.find<IncomeSourcesController>();
-  final consumerController = Get.find<ConsumerController>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          _showAddIncomeSheet(
-                context,
-                incomeController,
-                incomeSourcesController,
-                consumerController,
-              );
+          _showAddIncomeSheet(context, incomeController);
         },
         backgroundColor: const Color(0xFF7C3AED),
         elevation: 4,
@@ -44,65 +34,17 @@ class _IncomeListScreenState extends State<IncomeListScreen> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
           overflow: TextOverflow.ellipsis,
         ),
-        
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Obx(
-                () => incomeController.isLoading.value
-                    ? const Center(child: CircularProgressIndicator())
-                    : incomeController.incomes.isEmpty
-                    ? const Center(
-                        child: EmptyStateWidget(categoryName: 'incomes'),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: () async {
-                          await incomeController.loadIncomeSources();
-                        },
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                                                    
-                                                    return ListView.separated(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              itemCount: incomeController.incomes.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 12),
-                              itemBuilder: (context, index) {
-                                return _buildIncomeCard(
-                                  context,
-                                  incomeController.incomes[index],
-                                  incomeController,
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: SafeArea(child: Column(children: [
+          ] )),
     );
   }
 }
 
 class AddIncomeSheet extends StatelessWidget {
-  const AddIncomeSheet({
-    super.key,
-    required this.incomeController,
-    required this.incomeSourcesController,
-    required this.consumerController,
-  });
+  const AddIncomeSheet({super.key, required this.incomeController});
 
   final IncomeController incomeController;
-  final IncomeSourcesController incomeSourcesController;
-  final ConsumerController consumerController;
 
   @override
   Widget build(BuildContext context) {
@@ -161,125 +103,6 @@ class AddIncomeSheet extends StatelessWidget {
             //   onChanged: (value) => incomeController.description.value = value,
             // ),
             const SizedBox(height: 20),
-
-            // 📌 Income source dropdown
-            Obx(
-              () => ShadSelectFormField(
-                id: 'source_id',
-                initialValue: incomeController.selectedSourceId.value.isEmpty
-                    ? 'none'
-                    : incomeController.selectedSourceId.value,
-                label: Text(
-                  'Income Source',
-                  style: ShadTheme.of(context).textTheme.small,
-                ),
-                minWidth: double.infinity,
-                options: [
-                  ShadOption(
-                    value: 'none',
-                    child: Text(
-                      'Select an income source',
-                      style: ShadTheme.of(context).textTheme.muted,
-                    ),
-                  ),
-                  ...incomeSourcesController.incomeSources.map(
-                    (src) => ShadOption(
-                      value: src.sourceId.toString(),
-                      child: Text(src.sourceName),
-                    ),
-                  ),
-                ],
-                selectedOptionBuilder: (context, value) => value == 'none'
-                    ? Text(
-                        'Select an income source',
-                        style: ShadTheme.of(context).textTheme.muted,
-                      )
-                    : Text(
-                        incomeSourcesController.incomeSources
-                            .firstWhere((s) => s.sourceId.toString() == value)
-                            .sourceName,
-                      ),
-                validator: (v) {
-                  if (v == null || v == 'none') {
-                    return 'Please select a source';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  incomeController.selectedSourceId.value =
-                      (value != null && value != 'none') ? value : '';
-                },
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            Obx(
-              () => ShadSelectFormField(
-                id: 'consumer_id',
-                initialValue: incomeController.selectedConsumerId.value.isEmpty
-                    ? 'none'
-                    : incomeController.selectedConsumerId.value,
-                label: Text(
-                  'Consumer',
-                  style: ShadTheme.of(context).textTheme.small,
-                ),
-                minWidth: double.infinity,
-                options: [
-                  ShadOption(
-                    value: 'none',
-                    child: Text(
-                      'Select an consumer',
-                      style: ShadTheme.of(context).textTheme.muted,
-                    ),
-                  ),
-                  ...consumerController.consumers.map(
-                    (src) => ShadOption(
-                      value: src.consumerId.toString(),
-                      child: Text(src.consumerName),
-                    ),
-                  ),
-                ],
-                selectedOptionBuilder: (context, value) => value == 'none'
-                    ? Text(
-                        'Select an income source',
-                        style: ShadTheme.of(context).textTheme.muted,
-                      )
-                    : Text(
-                        consumerController.consumers
-                            .firstWhere((s) => s.consumerId.toString() == value)
-                            .consumerName,
-                      ),
-                validator: (v) {
-                  if (v == null || v == 'none') {
-                    return 'Please select a consumer';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  incomeController.selectedConsumerId.value =
-                      (value != null && value != 'none') ? value : '';
-                },
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // 🔄 Recurring checkbox
-            Obx(
-              () => ShadCheckbox(
-                value: incomeController.isRecurring.value,
-                onChanged: (v) {
-                  incomeController.isRecurring.value = v;
-                },
-                label: Text(
-                  'Is Recurring?',
-                  style: ShadTheme.of(context).textTheme.small,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
             // 👥 Shared checkbox + conditional field
             Obx(
               () => Column(
@@ -337,34 +160,15 @@ class AddIncomeSheet extends StatelessWidget {
             // 💾 Save button
             ShadButton(
               onPressed: () async {
-                if (incomeController.selectedSourceId.value.isNotEmpty) {
-                  await incomeController.saveEntry(
-                    int.parse(incomeController.selectedSourceId.value),
-                    int.parse(incomeController.selectedConsumerId.value),
-                  );
+                await incomeController.saveEntry();
+                // Reset the form after saving
+                incomeController.resetForm();
 
-                  // Reset the form after saving
-                  incomeController.resetForm();
-
-                  if (context.mounted) {
-                    ShadToaster.of(context).show(
-                      ShadToast(
-                        title: Text(
-                          'Success: Added new income entry',
-                        ),
-                        description: Text('${DateTime.now()}'),
-                      ),
-                    );
-                  }
-                } else {
+                if (context.mounted) {
                   ShadToaster.of(context).show(
-                    ShadToast.destructive(
-                      title: Text('Error: Please select income source'),
+                    ShadToast(
+                      title: Text('Success: Added new income entry'),
                       description: Text('${DateTime.now()}'),
-                      // action: ShadButton.secondary(
-                      //   onPressed: () => ShadToaster.of(context).hide(),
-                      //   child: const Text('Ok'),
-                      // ),
                     ),
                   );
                 }
@@ -381,8 +185,6 @@ class AddIncomeSheet extends StatelessWidget {
 void _showAddIncomeSheet(
   BuildContext context,
   IncomeController incomeController,
-  IncomeSourcesController incomeSourcesController,
-  ConsumerController consumerController,
 ) {
   showModalBottomSheet(
     context: context,
@@ -400,11 +202,7 @@ void _showAddIncomeSheet(
         builder: (context, scrollController) {
           return SingleChildScrollView(
             controller: scrollController, // ✅ sync with drag
-            child: AddIncomeSheet(
-              incomeController: incomeController,
-              incomeSourcesController: incomeSourcesController,
-              consumerController: consumerController,
-            ),
+            child: AddIncomeSheet(incomeController: incomeController),
           );
         },
       );
@@ -419,16 +217,13 @@ Widget _buildIncomeCard(
 ) {
   final theme = Theme.of(context);
   final colorScheme = theme.colorScheme;
-  
+
   return Card(
     elevation: 0,
     margin: EdgeInsets.zero,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
-      side: BorderSide(
-        color: colorScheme.outline.withOpacity(0.2),
-        width: 1,
-      ),
+      side: BorderSide(color: colorScheme.outline.withOpacity(0.2), width: 1),
     ),
     child: InkWell(
       borderRadius: BorderRadius.circular(12),
@@ -445,7 +240,10 @@ Widget _buildIncomeCard(
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(6),
@@ -501,9 +299,9 @@ Widget _buildIncomeCard(
                   ),
               ],
             ),
-            
+
             const SizedBox(height: 10),
-            
+
             // Amount + Actions row
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -523,31 +321,31 @@ Widget _buildIncomeCard(
                         ),
                       ),
                       const SizedBox(width: 4),
-                      income.entry.isShared ?
-                      Flexible(
-                        child: Text(
-                          income.entry.amountShared.toStringAsFixed(2),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: colorScheme.primary,
-                            height: 1,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ):
-                      Flexible(
-                        child: Text(
-                          income.entry.amount.toStringAsFixed(2),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: colorScheme.primary,
-                            height: 1,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      income.entry.isShared
+                          ? Flexible(
+                              child: Text(
+                                income.entry.amountShared.toStringAsFixed(2),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: colorScheme.primary,
+                                  height: 1,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            )
+                          : Flexible(
+                              child: Text(
+                                income.entry.amount.toStringAsFixed(2),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: colorScheme.primary,
+                                  height: 1,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                     ],
                   ),
                 ),
@@ -586,9 +384,9 @@ Widget _buildIncomeCard(
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Date row
             Row(
               children: [
@@ -607,9 +405,9 @@ Widget _buildIncomeCard(
                 ),
               ],
             ),
-            
+
             // Description (if exists)
-            if (income.entry.description != null && 
+            if (income.entry.description != null &&
                 income.entry.description!.isNotEmpty) ...[
               const SizedBox(height: 6),
               Text(
@@ -623,7 +421,7 @@ Widget _buildIncomeCard(
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-            
+
             // Shared amount with consumer (compact)
             if (income.entry.isShared) ...[
               const SizedBox(height: 6),
@@ -632,7 +430,10 @@ Widget _buildIncomeCard(
                 runSpacing: 4,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(6),
@@ -662,7 +463,10 @@ Widget _buildIncomeCard(
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(6),
@@ -677,9 +481,14 @@ Widget _buildIncomeCard(
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                      color: colorScheme.surfaceContainerHighest.withOpacity(
+                        0.5,
+                      ),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(

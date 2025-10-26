@@ -47,6 +47,7 @@ dependencies:
   lucide_icons_flutter: ^3.1.1
   syncfusion_flutter_charts: ^31.1.22
   intl: ^0.20.2
+  fl_chart: ^1.1.1
   
 
 dev_dependencies:

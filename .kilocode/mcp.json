@@ -1,8 +1,22 @@
 {
   "mcpServers": {
-    "figma-dev-mode": {
-      "type": "sse",
-      "url": "http://127.0.0.1:3845/sse"
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "env": {
+        "DEFAULT_MINIMUM_TOKENS": ""
+      }
+    },
+    "git-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@0.1.29",
+        "https://gitmcp.io/microsoft/dart"
+      ]
     }
   }
 }

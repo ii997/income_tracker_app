@@ -4,9 +4,6 @@ part of 'income_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$IncomeDaoMixin on DatabaseAccessor<AppDatabase> {
-  $IncomeCategoriesTable get incomeCategories =>
-      attachedDatabase.incomeCategories;
-  $IncomeSourcesTable get incomeSources => attachedDatabase.incomeSources;
-  $ConsumersTable get consumers => attachedDatabase.consumers;
   $IncomeEntriesTable get incomeEntries => attachedDatabase.incomeEntries;
+  $RecentActivityTable get recentActivity => attachedDatabase.recentActivity;
 }

@@ -3,11 +3,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:income_tracker_app/data/local/app_database.dart';
-import 'package:drift/drift.dart' as drift;
 import 'package:income_tracker_app/router/app_pages.dart';
 import 'package:income_tracker_app/router/app_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:drift/drift.dart' as drift;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,47 +21,21 @@ void main() async {
     authOptions: FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
   );
 
-  //Sample Seeders for dummy datas
-
-  final categoryId = await db
-      .into(db.incomeCategories)
-      .insert(
-        IncomeCategoriesCompanion.insert(
-          categoryName: 'Business or Entrepreneural Income',
-          categoryDescription: 'idk',
-        ),
-      );
   await db
-      .into(db.incomeSources)
+      .into(db.incomeEntries)
       .insert(
-        IncomeSourcesCompanion.insert(
-          sourceName: 'Wi-Fi Vendo',
-          sourceCategoryId: categoryId,
+        IncomeEntriesCompanion.insert(
+          amount: 5000.0,
+          incomeCategory: drift.Value('Salary'),
+          isShared: drift.Value(false),
         ),
       );
-  final sourceId = await db
-      .into(db.incomeSources)
-      .insert(
-        IncomeSourcesCompanion.insert(
-          sourceName: 'Solo',
-          sourceCategoryId: categoryId,
-        ),
-      );
+
   await db
-      .into(db.incomeSources)
+      .into(db.expenses)
       .insert(
-        IncomeSourcesCompanion.insert(
-          sourceName: 'Others',
-          sourceCategoryId: categoryId,
-        ),
+        ExpensesCompanion.insert(amount: 1500.0, category: drift.Value('Rent')),
       );
-      await db.into(db.consumers).insert(ConsumersCompanion.insert(consumerName: drift.Value('John Doe')));
-      await db.into(db.consumers).insert(ConsumersCompanion.insert(consumerName: drift.Value('Nelson Baluran')));
-      final id = await db.into(db.consumers).insert(ConsumersCompanion.insert(consumerName: drift.Value('Jane Rollorata')));
-
-    await db.into(db.incomeEntries).insert(IncomeEntriesCompanion.insert(amount: 5005, incomeSourceId: sourceId, currentConsumerId: id, incomeDate: DateTime.now() ));
-    await db.into(db.incomeEntries).insert(IncomeEntriesCompanion.insert(amount: 3430, incomeSourceId: sourceId, currentConsumerId: id, incomeDate: DateTime.now() ));
-
   runApp(const MyApp());
 }
 
@@ -75,9 +49,7 @@ class MyApp extends StatelessWidget {
       theme: ShadThemeData(
         colorScheme: ShadZincColorScheme.light(),
         brightness: Brightness.light,
-        textTheme: ShadTextTheme.fromGoogleFont(
-           GoogleFonts.roboto,
-        )
+        textTheme: ShadTextTheme.fromGoogleFont(GoogleFonts.poppins),
       ),
       appBuilder: (context) => GetMaterialApp(
         debugShowCheckedModeBanner: false,
