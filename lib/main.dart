@@ -7,7 +7,6 @@ import 'package:income_tracker_app/router/app_pages.dart';
 import 'package:income_tracker_app/router/app_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:drift/drift.dart' as drift;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,21 +20,6 @@ void main() async {
     authOptions: FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
   );
 
-  await db
-      .into(db.incomeEntries)
-      .insert(
-        IncomeEntriesCompanion.insert(
-          amount: 5000.0,
-          incomeCategory: drift.Value('Salary'),
-          isShared: drift.Value(false),
-        ),
-      );
-
-  await db
-      .into(db.expenses)
-      .insert(
-        ExpensesCompanion.insert(amount: 1500.0, category: drift.Value('Rent')),
-      );
   runApp(const MyApp());
 }
 

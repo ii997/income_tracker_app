@@ -2,19 +2,20 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:income_tracker_app/data/local/daos/income_dao.dart';
-import 'package:income_tracker_app/features/home/home_controller.dart';
 import 'package:income_tracker_app/utils/snackbar_helper.dart';
 import '../../data/local/app_database.dart';
 
 class IncomeController extends GetxController {
-  static IncomeController get to => Get.find();
-
-  late final AppDatabase db;
+  final AppDatabase db;
   late final IncomeDao incomeEntriesDAO;
   RxBool isLoading = false.obs;
   RxBool isLoadingTotals = false.obs;
 
   RxString selectedCategory = ''.obs;
+
+  IncomeController(this.db) {
+    incomeEntriesDAO = db.incomeDao;
+  }
 
   // Constructor for adding a new income entry
 
@@ -33,17 +34,12 @@ class IncomeController extends GetxController {
   TextEditingController sharePercentController = TextEditingController();
   TextEditingController amountSharedController = TextEditingController();
 
-  IncomeController(this.db) {
-    incomeEntriesDAO = db.incomeDao;
-  }
-
   @override
   void onInit() {
     super.onInit();
     incomeEntriesDAO.watchTotalIncome().listen((value) {
       totalIncome.value = value;
     });
-
     // Keep Rx values in sync with text controllers
     ever(description, (_) => descriptionController.text = description.value);
 
@@ -98,10 +94,6 @@ class IncomeController extends GetxController {
       SnackbarHelper.showIncomeSaved();
       await fetchTotalIncome(); // refresh list
       // Update home controller's income entries
-      final homeCtrl = Get.find<HomeController>();
-      homeCtrl.incomeEntries.assignAll(
-        await homeCtrl.incomeDao.getAllIncomeEntries(),
-      );
       resetForm();
     } catch (e) {
       SnackbarHelper.showError('Failed to save income. Please try again.');

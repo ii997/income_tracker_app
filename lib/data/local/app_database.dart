@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:income_tracker_app/data/local/daos/activity_dao.dart';
 import 'package:income_tracker_app/data/local/daos/expense_dao.dart';
+// 👈 this one!
 import 'daos/income_dao.dart';
 part 'app_database.g.dart';
 
@@ -61,6 +62,18 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 }
+
+// LazyDatabase _openConnection() {
+//   return LazyDatabase(() async {
+//     // Get the app's documents directory
+//     final dbFolder = await getApplicationDocumentsDirectory();
+//     // Define the full path of the SQLite database file
+//     final file = File(p.join(dbFolder.path, 'app_database.sqlite'));
+
+//     // Return a NativeDatabase that uses the file (persistent storage)
+//     return NativeDatabase(file);
+//   });
+// }
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {

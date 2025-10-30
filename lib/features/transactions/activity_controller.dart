@@ -3,8 +3,7 @@ import 'package:income_tracker_app/data/local/app_database.dart';
 import 'package:income_tracker_app/data/local/daos/activity_dao.dart';
 
 class RecentActivityController extends GetxController {
-  static RecentActivityController get to => Get.find();
-  late final AppDatabase db;
+  final AppDatabase db;
   late final ActivityDao activityDao;
   late final Stream<List<RecentActivityData>> recentActivities;
   RxBool isLoading = false.obs;

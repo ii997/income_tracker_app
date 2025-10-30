@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:income_tracker_app/data/local/app_database.dart';
 import 'package:income_tracker_app/data/local/daos/expense_dao.dart';
-import 'package:income_tracker_app/features/home/home_controller.dart';
 import 'package:income_tracker_app/utils/snackbar_helper.dart';
 
 class ExpenseController extends GetxController {
-  static ExpenseController get to => Get.find();
-  late final AppDatabase db;
+  final AppDatabase db;
   late final ExpenseDao expenseDao;
   final RxDouble totalExpense = 0.0.obs;
   final RxString description = ''.obs;
@@ -23,6 +21,7 @@ class ExpenseController extends GetxController {
 
   TextEditingController amountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+
   @override
   void onInit() {
     super.onInit();
@@ -42,12 +41,22 @@ class ExpenseController extends GetxController {
       Get.back(); // close bottom sheet
       SnackbarHelper.showExpenseSaved();
       // Update home controller's expenses
-      final homeCtrl = Get.find<HomeController>();
-      homeCtrl.expenses.assignAll(await homeCtrl.expenseDao.getAllExpenses());
       resetForm();
     } catch (e) {
       SnackbarHelper.showError('Failed to save expense. Please try again.');
       return;
+    }
+  }
+
+  Future<void> fetchTotalExpense() async {
+    isLoadingTotals.value = true;
+    try {
+      final total = await db.expenseDao.getTotalExpense();
+      totalExpense.value = total;
+    } catch (e) {
+      print('DEBUG: Failed to fetch total income: $e');
+    } finally {
+      isLoadingTotals.value = false;
     }
   }
 

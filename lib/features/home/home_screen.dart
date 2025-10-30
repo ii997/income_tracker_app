@@ -4,13 +4,15 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:income_tracker_app/data/local/app_database.dart';
-import 'package:income_tracker_app/features/expenses/activity_controller.dart';
+import 'package:income_tracker_app/features/transactions/activity_controller.dart';
 import 'package:income_tracker_app/features/expenses/expense_controller.dart';
 import 'package:income_tracker_app/features/home/add_expense_sheet.dart';
 import 'package:income_tracker_app/features/home/add_income_sheet.dart';
 import 'package:income_tracker_app/features/home/home_controller.dart';
 import 'package:income_tracker_app/features/home/income_expense_chart.dart';
 import 'package:income_tracker_app/features/incomes/income_controller.dart';
+import 'package:income_tracker_app/router/app_router.dart';
+import 'package:income_tracker_app/services/finance_service.dart';
 import 'package:income_tracker_app/utils/currency_helper.dart';
 import 'package:income_tracker_app/utils/date_formatter.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -23,7 +25,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final controller = Get.find<HomeController>();
+  final homeCtrl = Get.find<HomeController>();
+  final financeService = Get.find<FinanceService>();
   final incomeController = Get.find<IncomeController>();
   final expenseController = Get.find<ExpenseController>();
   final activityController = Get.find<RecentActivityController>();
@@ -38,119 +41,175 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // App Bar
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  isTablet ? 32 : 20,
-                  isTablet ? 24 : 16,
-                  isTablet ? 32 : 20,
-                  isTablet ? 16 : 12,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Finance Tracker',
-                          style: ShadTheme.of(context).textTheme.h4.copyWith(
-                            fontSize: 24,
-                            color: const Color(0xFF1A1A1A),
-                            letterSpacing: -0.5,
-                            overflow: TextOverflow.ellipsis,
+            SliverAppBar(
+              floating: true,
+              toolbarHeight: 100,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hello',
+                            style: ShadTheme.of(context).textTheme.muted,
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _getGreeting(),
-                          style: ShadTheme.of(context).textTheme.h4.copyWith(
-                            fontSize: isTablet ? 16 : 14,
-                            color: const Color(0xFF6B6B6B),
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: -0.5,
+                          Text(
+                            _getGreeting(),
+                            style: ShadTheme.of(context).textTheme.h4,
                           ),
-                        ),
-                      ],
-                    ),
-                    // Stack(
-                    //   clipBehavior: Clip.none,
-                    //   children: [
-                    //     Container(
-                    //       padding: const EdgeInsets.all(12),
-                    //       decoration: BoxDecoration(
-                    //         color: Colors.white,
-                    //         borderRadius: BorderRadius.circular(16),
-                    //         boxShadow: [
-                    //           BoxShadow(
-                    //             color: const Color(0xFF7C3AED).withOpacity(0.1),
-                    //             blurRadius: 12,
-                    //             offset: const Offset(0, 4),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //       child: const Icon(
-                    //         LucideIcons.bell,
-                    //         color: Color(0xFF7C3AED),
-                    //         size: 25,
-                    //       ),
-                    //     ),
-
-                    //     // 🔴 Notification bubble
-                    //     Positioned(
-                    //       right: 4,
-                    //       top: 4,
-                    //       child: Container(
-                    //         padding: const EdgeInsets.all(4),
-                    //         decoration: BoxDecoration(
-                    //           color: Colors.redAccent,
-                    //           shape: BoxShape.circle,
-                    //           border: Border.all(color: Colors.white, width: 2),
-                    //         ),
-                    //         constraints: const BoxConstraints(
-                    //           minWidth: 18,
-                    //           minHeight: 18,
-                    //         ),
-                    //         child: const Center(
-                    //           child: Text(
-                    //             '10',
-                    //             style: TextStyle(
-                    //               color: Colors.white,
-                    //               fontSize: 10,
-                    //               fontWeight: FontWeight.bold,
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    Center(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const CircleAvatar(
-                          radius: 25,
-                          backgroundColor: Colors.white,
-                          backgroundImage: NetworkImage(
-                            'https://scontent.fdvo8-1.fna.fbcdn.net/v/t39.30808-6/547360770_1845677699697398_2293729068978289129_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeGtSJZS5L_VHf-C40ys0VI-v_QGWtFMkJO_9AZa0UyQk0-jjt4IpsyP-wn4Wu1k9d4_LdcN8Yg6kNv5mlYeJyDb&_nc_ohc=8zpSuTvkAZ0Q7kNvwGb3AF8&_nc_oc=AdmQdKHi_bP9TXzD7meNi4ZgQJaSjfRhysiVLK3hIjV8mnhSdCpi29G_5TUVWETVzRE&_nc_zt=23&_nc_ht=scontent.fdvo8-1.fna&_nc_gid=xO2lqkvJ3R_QAppRb5dt-g&oh=00_AffNcnENHVAEFc1y1Peqr6QjMSfbzPpjA30WX4Ww70GZKg&oe=69035969', // replace with your image URL
-                          ),
-                        ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
+
+            SliverAppBar(
+              pinned: true,
+              expandedHeight: 150,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Obx(
+                  () => Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        CurrencyHelper.format(financeService.netBalance.value),
+                        style: ShadTheme.of(context).textTheme.h2,
+                      ),
+                      Text(
+                        'Net Balance',
+                        style: ShadTheme.of(
+                          context,
+                        ).textTheme.small.copyWith(fontSize: 18),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // // App Bar
+            // SliverToBoxAdapter(
+            //   child: Padding(
+            //     padding: EdgeInsets.fromLTRB(
+            //       isTablet ? 32 : 20,
+            //       isTablet ? 24 : 16,
+            //       isTablet ? 32 : 20,
+            //       isTablet ? 16 : 12,
+            //     ),
+            //     child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //       children: [
+            //         Column(
+            //           crossAxisAlignment: CrossAxisAlignment.start,
+            //           children: [
+            //             Text(
+            //               'Finance Tracker',
+            //               style: ShadTheme.of(context).textTheme.h4.copyWith(
+            //                 fontSize: 24,
+            //                 color: const Color(0xFF1A1A1A),
+            //                 letterSpacing: -0.5,
+            //                 overflow: TextOverflow.ellipsis,
+            //               ),
+            //             ),
+            //             const SizedBox(height: 4),
+            //             Text(
+            //               _getGreeting(),
+            //               style: ShadTheme.of(context).textTheme.h4.copyWith(
+            //                 fontSize: isTablet ? 16 : 14,
+            //                 color: const Color(0xFF6B6B6B),
+            //                 fontWeight: FontWeight.w500,
+            //                 letterSpacing: -0.5,
+            //               ),
+            //             ),
+            //           ],
+            //         ),
+            //         // Stack(
+            //         //   clipBehavior: Clip.none,
+            //         //   children: [
+            //         //     Container(
+            //         //       padding: const EdgeInsets.all(12),
+            //         //       decoration: BoxDecoration(
+            //         //         color: Colors.white,
+            //         //         borderRadius: BorderRadius.circular(16),
+            //         //         boxShadow: [
+            //         //           BoxShadow(
+            //         //             color: const Color(0xFF7C3AED).withOpacity(0.1),
+            //         //             blurRadius: 12,
+            //         //             offset: const Offset(0, 4),
+            //         //           ),
+            //         //         ],
+            //         //       ),
+            //         //       child: const Icon(
+            //         //         LucideIcons.bell,
+            //         //         color: Color(0xFF7C3AED),
+            //         //         size: 25,
+            //         //       ),
+            //         //     ),
+
+            //         //     // 🔴 Notification bubble
+            //         //     Positioned(
+            //         //       right: 4,
+            //         //       top: 4,
+            //         //       child: Container(
+            //         //         padding: const EdgeInsets.all(4),
+            //         //         decoration: BoxDecoration(
+            //         //           color: Colors.redAccent,
+            //         //           shape: BoxShape.circle,
+            //         //           border: Border.all(color: Colors.white, width: 2),
+            //         //         ),
+            //         //         constraints: const BoxConstraints(
+            //         //           minWidth: 18,
+            //         //           minHeight: 18,
+            //         //         ),
+            //         //         child: const Center(
+            //         //           child: Text(
+            //         //             '10',
+            //         //             style: TextStyle(
+            //         //               color: Colors.white,
+            //         //               fontSize: 10,
+            //         //               fontWeight: FontWeight.bold,
+            //         //             ),
+            //         //           ),
+            //         //         ),
+            //         //       ),
+            //         //     ),
+            //         //   ],
+            //         // ),
+            //         Center(
+            //           child: Container(
+            //             decoration: BoxDecoration(
+            //               shape: BoxShape.circle,
+            //               boxShadow: [
+            //                 BoxShadow(
+            //                   color: Colors.black.withOpacity(0.15),
+            //                   blurRadius: 8,
+            //                   offset: const Offset(0, 4),
+            //                 ),
+            //               ],
+            //             ),
+            //             child: const CircleAvatar(
+            //               radius: 25,
+            //               backgroundColor: Colors.white,
+            //               backgroundImage: NetworkImage(
+            //                 'https://scontent.fdvo8-1.fna.fbcdn.net/v/t39.30808-6/547360770_1845677699697398_2293729068978289129_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeGtSJZS5L_VHf-C40ys0VI-v_QGWtFMkJO_9AZa0UyQk0-jjt4IpsyP-wn4Wu1k9d4_LdcN8Yg6kNv5mlYeJyDb&_nc_ohc=8zpSuTvkAZ0Q7kNvwGb3AF8&_nc_oc=AdmQdKHi_bP9TXzD7meNi4ZgQJaSjfRhysiVLK3hIjV8mnhSdCpi29G_5TUVWETVzRE&_nc_zt=23&_nc_ht=scontent.fdvo8-1.fna&_nc_gid=xO2lqkvJ3R_QAppRb5dt-g&oh=00_AffNcnENHVAEFc1y1Peqr6QjMSfbzPpjA30WX4Ww70GZKg&oe=69035969', // replace with your image URL
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
 
             // Summary Cards
             SliverToBoxAdapter(
@@ -180,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: _buildSummaryCard(
                                 'This Month',
                                 CurrencyHelper.format(
-                                  incomeController.totalIncome.value,
+                                  financeService.totalIncome.value,
                                 ),
                                 LucideIcons.walletMinimal400,
                                 const Color(0xFF8B5CF6),
@@ -194,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             () => Expanded(
                               child: _buildSummaryCard(
                                 'Expenses',
-                                expenseController.totalExpense.toString(),
+                                financeService.totalExpense.toString(),
                                 LucideIcons.calendar,
                                 const Color.fromARGB(255, 246, 92, 92),
                                 '+8.2%',
@@ -210,9 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           _buildSummaryCard(
                             'Net Balance',
-                            CurrencyHelper.format(
-                              HomeController.to.netBalance.value,
-                            ),
+                            CurrencyHelper.format(homeCtrl.netBalance.value),
                             LucideIcons.trendingUp,
                             const Color(0xFF7C3AED),
                             '+12.5%',
@@ -223,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Expanded(
                                 child: _buildSummaryCard(
-                                  'This Month',
+                                  'Total Income',
                                   CurrencyHelper.format(
                                     incomeController.totalIncome.value,
                                   ),
@@ -280,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () async {},
+                      onPressed: () => Get.toNamed(AppRouter.transactions),
                       child: Text(
                         'View All',
                         style: ShadTheme.of(context).textTheme.small.copyWith(
@@ -371,11 +428,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: Text(
                   'Analytics',
-                  style: TextStyle(
-                    fontSize: isTablet ? 20 : 18,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1A1A1A),
-                  ),
+                  style: ShadTheme.of(context).textTheme.h4.copyWith(),
                 ),
               ),
             ),
@@ -788,5 +841,12 @@ Widget _showAddExpenseSheet(
       ),
       child: AddExpenseSheet(expenseController: expenseController),
     ),
+  );
+}
+
+Widget _buildActionButton({required IconData icon, required String label}) {
+  return Column(children: [
+
+    ],
   );
 }
