@@ -5,4 +5,5 @@ class AppRouter {
   static const String incomes = '/incomes';
   static const String login = '/login';
   static const String signup = '/signup';
+  static const String transactions = '/transactions';
 }

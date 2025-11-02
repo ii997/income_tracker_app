@@ -14,11 +14,11 @@ class ExpenseDao extends DatabaseAccessor<AppDatabase> with _$ExpenseDaoMixin {
     return result.fold<double>(0.0, (sum, entry) => sum + entry.amount);
   }
 
-  Future<void> insertExpense(ExpensesCompanion expense) async {
-    await transaction(() async {
+  Future<Expense> insertExpense(ExpensesCompanion expense) async {
+    return transaction(() async {
       try {
         // 1️⃣ Insert the expense
-        await into(expenses).insert(expense);
+        final insertedExpense = await into(expenses).insertReturning(expense);
 
         // 2️⃣ Insert into recent_activity table
         final activity = RecentActivityCompanion.insert(
@@ -29,6 +29,8 @@ class ExpenseDao extends DatabaseAccessor<AppDatabase> with _$ExpenseDaoMixin {
         await into(recentActivity).insert(activity);
 
         print('✅ Both expense and recent activity inserted successfully');
+
+        return insertedExpense;
       } catch (e, stack) {
         print('❌ Failed to insert expense and activity: $e');
         print(stack);
@@ -44,7 +46,10 @@ class ExpenseDao extends DatabaseAccessor<AppDatabase> with _$ExpenseDaoMixin {
         .map((rows) => rows.fold<double>(0.0, (sum, row) => sum + row.amount));
   }
 
-  Future<List<Expense>> getAllExpenses() async {
-    return await select(expenses).get();
+  // Income DAO
+  Stream<List<Expense>> watchAllExpenseEntries() {
+    return (select(
+      expenses,
+    )..orderBy([(t) => OrderingTerm.desc(t.expenseDate)])).watch();
   }
 }

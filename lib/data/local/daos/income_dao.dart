@@ -14,11 +14,13 @@ class IncomeDao extends DatabaseAccessor<AppDatabase> with _$IncomeDaoMixin {
     return result.fold<double>(0.0, (sum, entry) => sum + entry.amount);
   }
 
-  Future<void> insertIncome(IncomeEntriesCompanion income) async {
-    await transaction(() async {
+  Future<IncomeEntry> insertIncome(IncomeEntriesCompanion income) async {
+    return await transaction(() async {
       try {
-        // 1️⃣ Insert the income
-        await into(incomeEntries).insert(income);
+        // 1️⃣ Insert the income and capture the inserted row
+        final insertedIncome = await into(
+          incomeEntries,
+        ).insertReturning(income);
 
         // 2️⃣ Insert into recent_activity table
         final activity = RecentActivityCompanion.insert(
@@ -26,13 +28,17 @@ class IncomeDao extends DatabaseAccessor<AppDatabase> with _$IncomeDaoMixin {
           description: Value(income.incomeCategory.value ?? 'No Description'),
           amount: income.amount.value,
         );
+
         await into(db.recentActivity).insert(activity);
 
         print('✅ Both income and recent activity inserted successfully');
+
+        // 3️⃣ Return the inserted record so the controller can use it
+        return insertedIncome;
       } catch (e, stack) {
         print('❌ Failed to insert income and activity: $e');
         print(stack);
-        rethrow; // optional: rethrow if you want the controller to handle it
+        rethrow;
       }
     });
   }
@@ -45,7 +51,10 @@ class IncomeDao extends DatabaseAccessor<AppDatabase> with _$IncomeDaoMixin {
         .map((rows) => rows.fold<double>(0.0, (sum, row) => sum + row.amount));
   }
 
-  Future<List<IncomeEntry>> getAllIncomeEntries() async {
-    return await select(incomeEntries).get();
+  // Income DAO
+  Stream<List<IncomeEntry>> watchAllIncomeEntries() {
+    return (select(
+      incomeEntries,
+    )..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).watch();
   }
 }

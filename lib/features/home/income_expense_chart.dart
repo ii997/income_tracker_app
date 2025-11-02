@@ -2,6 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:income_tracker_app/features/home/home_controller.dart';
+import 'package:path/path.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 class IncomeExpenseChart extends StatelessWidget {
   const IncomeExpenseChart({super.key});
@@ -12,11 +14,11 @@ class IncomeExpenseChart extends StatelessWidget {
 
     return Obx(() {
       // Early return if no data
-      if (homeCtrl.incomeEntries.isEmpty && homeCtrl.expenses.isEmpty) {
+      if (homeCtrl.incomes.isEmpty && homeCtrl.expenses.isEmpty) {
         return _buildEmptyState();
       }
 
-      final incomeSpots = _mapToSpots(homeCtrl.incomeEntries);
+      final incomeSpots = _mapToSpots(homeCtrl.incomes);
       final expenseSpots = _mapToSpots(homeCtrl.expenses);
 
       // Calculate max value for better Y-axis scaling
@@ -51,7 +53,7 @@ class IncomeExpenseChart extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0, top: 8.0),
               child: LineChart(
-                mainData(incomeSpots, expenseSpots, maxY, homeCtrl),
+                mainData(incomeSpots, expenseSpots, maxY, homeCtrl, context),
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeInOut,
               ),
@@ -66,7 +68,8 @@ class IncomeExpenseChart extends StatelessWidget {
     List<FlSpot> incomeSpots,
     List<FlSpot> expenseSpots,
     double maxY,
-    HomeController controller,
+    HomeController homeCtrl,
+    BuildContext context,
   ) {
     return LineChartData(
       gridData: FlGridData(
@@ -94,8 +97,8 @@ class IncomeExpenseChart extends StatelessWidget {
             interval: 1,
             getTitlesWidget: (value, meta) {
               // Only show labels for valid indices
-              if (value.toInt() >= controller.incomeEntries.length &&
-                  value.toInt() >= controller.expenses.length) {
+              if (value.toInt() >= homeCtrl.incomes.length &&
+                  value.toInt() >= homeCtrl.expenses.length) {
                 return const SizedBox.shrink();
               }
 
@@ -109,7 +112,7 @@ class IncomeExpenseChart extends StatelessWidget {
                 space: 8,
                 meta: meta,
                 child: Text(
-                  _getDateLabel(value.toInt(), controller),
+                  _getDateLabel(value.toInt(), homeCtrl),
                   style: style,
                 ),
               );
@@ -169,7 +172,7 @@ class IncomeExpenseChart extends StatelessWidget {
 
               return LineTooltipItem(
                 '${isIncome ? "Income" : "Expense"}\n₱${_formatTooltipCurrency(spot.y)}',
-                TextStyle(
+                ShadTheme.of(context).textTheme.h1.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
@@ -390,16 +393,16 @@ class IncomeExpenseChart extends StatelessWidget {
     return value.toStringAsFixed(2);
   }
 
-  String _getDateLabel(int index, HomeController controller) {
+  String _getDateLabel(int index, HomeController homeCtrl) {
     // Try to get date from income entries first
-    if (index < controller.incomeEntries.length) {
-      final date = controller.incomeEntries[index].createdAt;
+    if (index < homeCtrl.incomes.length) {
+      final date = homeCtrl.incomes[index].createdAt;
       return '${date.month}/${date.day}';
     }
 
     // Try to get date from expenses
-    if (index < controller.expenses.length) {
-      final date = controller.expenses[index].expenseDate;
+    if (index < homeCtrl.expenses.length) {
+      final date = homeCtrl.expenses[index].expenseDate;
       return '${date.month}/${date.day}';
     }
 

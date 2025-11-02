@@ -48,6 +48,10 @@ dependencies:
   syncfusion_flutter_charts: ^31.1.22
   intl: ^0.20.2
   fl_chart: ^1.1.1
+  path: ^1.9.1
+  path_provider:
+  smooth_sheets: ^0.15.0
+  animated_text_kit: ^4.3.0
   
 
 dev_dependencies:
@@ -80,6 +84,7 @@ flutter:
   assets:
     - .env
     - assets/lotties/
+    - assets/images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
