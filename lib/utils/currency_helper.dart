@@ -2,8 +2,12 @@ import 'package:intl/intl.dart';
 
 class CurrencyHelper {
   // Default: Philippine Peso (₱). You can adjust `locale` and `symbol` as needed.
-  static String format(double amount, {String locale = 'en_PH', String symbol = '₱'}) {
-    final formatter = NumberFormat.currency(
+  static String format(
+    double amount, {
+    String locale = 'en_PH',
+    String symbol = '₱',
+  }) {
+    final formatter = NumberFormat.compactCurrency(
       locale: locale,
       symbol: symbol,
       decimalDigits: 2, // Change if you want whole numbers only

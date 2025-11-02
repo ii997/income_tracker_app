@@ -2,6 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:income_tracker_app/features/home/home_controller.dart';
+import 'package:path/path.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 class IncomeExpenseChart extends StatelessWidget {
   const IncomeExpenseChart({super.key});
@@ -51,7 +53,7 @@ class IncomeExpenseChart extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0, top: 8.0),
               child: LineChart(
-                mainData(incomeSpots, expenseSpots, maxY, homeCtrl),
+                mainData(incomeSpots, expenseSpots, maxY, homeCtrl, context),
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeInOut,
               ),
@@ -67,6 +69,7 @@ class IncomeExpenseChart extends StatelessWidget {
     List<FlSpot> expenseSpots,
     double maxY,
     HomeController homeCtrl,
+    BuildContext context,
   ) {
     return LineChartData(
       gridData: FlGridData(
@@ -169,7 +172,7 @@ class IncomeExpenseChart extends StatelessWidget {
 
               return LineTooltipItem(
                 '${isIncome ? "Income" : "Expense"}\n₱${_formatTooltipCurrency(spot.y)}',
-                TextStyle(
+                ShadTheme.of(context).textTheme.h1.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 13,

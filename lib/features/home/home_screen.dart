@@ -1,8 +1,10 @@
 // ignore_for_file: unused_import
 
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:income_tracker_app/data/local/app_database.dart';
 import 'package:income_tracker_app/features/transactions/activity_controller.dart';
 import 'package:income_tracker_app/features/expenses/expense_controller.dart';
@@ -37,209 +39,133 @@ class _HomeScreenState extends State<HomeScreen> {
     final isTablet = size.width > 600;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F7FC),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              floating: true,
-              toolbarHeight: 100,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 10,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hello',
-                            style: ShadTheme.of(context).textTheme.muted,
-                          ),
-                          Text(
-                            _getGreeting(),
-                            style: ShadTheme.of(context).textTheme.h4,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            SliverAppBar(
-              pinned: true,
-              expandedHeight: 150,
+              toolbarHeight: 200,
+              expandedHeight: 250,
               flexibleSpace: FlexibleSpaceBar(
                 background: Obx(
-                  () => Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  () => Stack(
                     children: [
-                      Text(
-                        CurrencyHelper.format(financeService.netBalance.value),
-                        style: ShadTheme.of(context).textTheme.h2,
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.all(25),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(25),
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                              color: Colors.deepPurple.withOpacity(0.08),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              CurrencyHelper.format(
+                                financeService.netBalance.value,
+                              ),
+                              style: ShadTheme.of(context).textTheme.h1,
+                            ),
+                            Text(
+                              'Net Balance',
+                              style: ShadTheme.of(
+                                context,
+                              ).textTheme.small.copyWith(fontSize: 16),
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                        ),
                       ),
-                      Text(
-                        'Net Balance',
-                        style: ShadTheme.of(
-                          context,
-                        ).textTheme.small.copyWith(fontSize: 18),
+
+                      // ✅ Correct use of Positioned
+                      Positioned(
+                        bottom: 0, // adjust as needed
+                        left: 0, // adjust as needed
+                        child: Image.asset(
+                          'assets/images/man_1.png',
+                          height: 200,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-
-            // // App Bar
-            // SliverToBoxAdapter(
-            //   child: Padding(
-            //     padding: EdgeInsets.fromLTRB(
-            //       isTablet ? 32 : 20,
-            //       isTablet ? 24 : 16,
-            //       isTablet ? 32 : 20,
-            //       isTablet ? 16 : 12,
-            //     ),
-            //     child: Row(
-            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //       children: [
-            //         Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             Text(
-            //               'Finance Tracker',
-            //               style: ShadTheme.of(context).textTheme.h4.copyWith(
-            //                 fontSize: 24,
-            //                 color: const Color(0xFF1A1A1A),
-            //                 letterSpacing: -0.5,
-            //                 overflow: TextOverflow.ellipsis,
-            //               ),
-            //             ),
-            //             const SizedBox(height: 4),
-            //             Text(
-            //               _getGreeting(),
-            //               style: ShadTheme.of(context).textTheme.h4.copyWith(
-            //                 fontSize: isTablet ? 16 : 14,
-            //                 color: const Color(0xFF6B6B6B),
-            //                 fontWeight: FontWeight.w500,
-            //                 letterSpacing: -0.5,
-            //               ),
-            //             ),
-            //           ],
-            //         ),
-            //         // Stack(
-            //         //   clipBehavior: Clip.none,
-            //         //   children: [
-            //         //     Container(
-            //         //       padding: const EdgeInsets.all(12),
-            //         //       decoration: BoxDecoration(
-            //         //         color: Colors.white,
-            //         //         borderRadius: BorderRadius.circular(16),
-            //         //         boxShadow: [
-            //         //           BoxShadow(
-            //         //             color: const Color(0xFF7C3AED).withOpacity(0.1),
-            //         //             blurRadius: 12,
-            //         //             offset: const Offset(0, 4),
-            //         //           ),
-            //         //         ],
-            //         //       ),
-            //         //       child: const Icon(
-            //         //         LucideIcons.bell,
-            //         //         color: Color(0xFF7C3AED),
-            //         //         size: 25,
-            //         //       ),
-            //         //     ),
-
-            //         //     // 🔴 Notification bubble
-            //         //     Positioned(
-            //         //       right: 4,
-            //         //       top: 4,
-            //         //       child: Container(
-            //         //         padding: const EdgeInsets.all(4),
-            //         //         decoration: BoxDecoration(
-            //         //           color: Colors.redAccent,
-            //         //           shape: BoxShape.circle,
-            //         //           border: Border.all(color: Colors.white, width: 2),
-            //         //         ),
-            //         //         constraints: const BoxConstraints(
-            //         //           minWidth: 18,
-            //         //           minHeight: 18,
-            //         //         ),
-            //         //         child: const Center(
-            //         //           child: Text(
-            //         //             '10',
-            //         //             style: TextStyle(
-            //         //               color: Colors.white,
-            //         //               fontSize: 10,
-            //         //               fontWeight: FontWeight.bold,
-            //         //             ),
-            //         //           ),
-            //         //         ),
-            //         //       ),
-            //         //     ),
-            //         //   ],
-            //         // ),
-            //         Center(
-            //           child: Container(
-            //             decoration: BoxDecoration(
-            //               shape: BoxShape.circle,
-            //               boxShadow: [
-            //                 BoxShadow(
-            //                   color: Colors.black.withOpacity(0.15),
-            //                   blurRadius: 8,
-            //                   offset: const Offset(0, 4),
-            //                 ),
-            //               ],
-            //             ),
-            //             child: const CircleAvatar(
-            //               radius: 25,
-            //               backgroundColor: Colors.white,
-            //               backgroundImage: NetworkImage(
-            //                 'https://scontent.fdvo8-1.fna.fbcdn.net/v/t39.30808-6/547360770_1845677699697398_2293729068978289129_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeGtSJZS5L_VHf-C40ys0VI-v_QGWtFMkJO_9AZa0UyQk0-jjt4IpsyP-wn4Wu1k9d4_LdcN8Yg6kNv5mlYeJyDb&_nc_ohc=8zpSuTvkAZ0Q7kNvwGb3AF8&_nc_oc=AdmQdKHi_bP9TXzD7meNi4ZgQJaSjfRhysiVLK3hIjV8mnhSdCpi29G_5TUVWETVzRE&_nc_zt=23&_nc_ht=scontent.fdvo8-1.fna&_nc_gid=xO2lqkvJ3R_QAppRb5dt-g&oh=00_AffNcnENHVAEFc1y1Peqr6QjMSfbzPpjA30WX4Ww70GZKg&oe=69035969', // replace with your image URL
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
 
             // Summary Cards
             SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isTablet ? 32 : 20,
-                  vertical: 8,
-                ),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (isTablet && constraints.maxWidth > 900) {
-                      return Row(
-                        children: [
-                          Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  if (isTablet && constraints.maxWidth > 900) {
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: _buildSummaryCard(
+                            'Total Income',
+                            '₱ 125,430.00',
+                            LucideIcons.trendingUp,
+                            const Color(0xFF7C3AED),
+                            '+12.5%',
+                            true,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Obx(
+                          () => Expanded(
                             child: _buildSummaryCard(
-                              'Total Income',
-                              '₱ 125,430.00',
-                              LucideIcons.trendingUp,
-                              const Color(0xFF7C3AED),
-                              '+12.5%',
+                              'This Month',
+                              CurrencyHelper.format(
+                                financeService.totalIncome.value,
+                              ),
+                              LucideIcons.walletMinimal400,
+                              const Color(0xFF8B5CF6),
+                              '+8.2%',
                               true,
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Obx(
-                            () => Expanded(
+                        ),
+                        const SizedBox(width: 16),
+                        Obx(
+                          () => Expanded(
+                            child: _buildSummaryCard(
+                              'Expenses',
+                              financeService.totalExpense.toString(),
+                              LucideIcons.calendar,
+                              const Color.fromARGB(255, 246, 92, 92),
+                              '+8.2%',
+                              true,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return Obx(
+                    () => Column(
+                      children: [
+                        // _buildSummaryCard(
+                        //   'Net Balance',
+                        //   CurrencyHelper.format(homeCtrl.netBalance.value),
+                        //   LucideIcons.trendingUp,
+                        //   const Color(0xFF7C3AED),
+                        //   '+12.5%',
+                        //   true,
+                        // ),
+                        // const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
                               child: _buildSummaryCard(
                                 'This Month',
                                 CurrencyHelper.format(
-                                  financeService.totalIncome.value,
+                                  incomeController.totalIncome.value,
                                 ),
                                 LucideIcons.walletMinimal400,
                                 const Color(0xFF8B5CF6),
@@ -247,72 +173,142 @@ class _HomeScreenState extends State<HomeScreen> {
                                 true,
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Obx(
-                            () => Expanded(
-                              child: _buildSummaryCard(
-                                'Expenses',
-                                financeService.totalExpense.toString(),
-                                LucideIcons.calendar,
-                                const Color.fromARGB(255, 246, 92, 92),
-                                '+8.2%',
-                                true,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                    return Obx(
-                      () => Column(
-                        children: [
-                          _buildSummaryCard(
-                            'Net Balance',
-                            CurrencyHelper.format(homeCtrl.netBalance.value),
-                            LucideIcons.trendingUp,
-                            const Color(0xFF7C3AED),
-                            '+12.5%',
-                            true,
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
+
+                            const SizedBox(width: 12),
+                            Obx(
+                              () => Expanded(
                                 child: _buildSummaryCard(
-                                  'Total Income',
+                                  'Total Expenses',
                                   CurrencyHelper.format(
-                                    incomeController.totalIncome.value,
+                                    expenseController.totalExpense.value,
                                   ),
-                                  LucideIcons.walletMinimal400,
-                                  const Color(0xFF8B5CF6),
+                                  LucideIcons.wallet400,
+                                  const Color.fromARGB(255, 246, 92, 92),
                                   '+8.2%',
                                   true,
                                 ),
                               ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            SliverAppBar(
+              backgroundColor: Colors.white,
+              expandedHeight: 180,
+              collapsedHeight: 180,
+              pinned: true,
+              flexibleSpace: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Calculate collapse progress
+                  final percent = ((constraints.maxHeight - 80) / (180 - 80))
+                      .clamp(0.0, 1.0);
 
-                              const SizedBox(width: 12),
-                              Obx(
-                                () => Expanded(
-                                  child: _buildSummaryCard(
-                                    'Total Expenses',
-                                    CurrencyHelper.format(
-                                      expenseController.totalExpense.value,
-                                    ),
-                                    LucideIcons.wallet400,
-                                    const Color.fromARGB(255, 246, 92, 92),
-                                    '+8.2%',
-                                    true,
-                                  ),
+                  return FlexibleSpaceBar(
+                    background: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.grey.shade50, Colors.white],
+                        ),
+                      ),
+                      child: SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Opacity(
+                                opacity: percent,
+                                child: Text(
+                                  'Quick Actions',
+                                  style: ShadTheme.of(context).textTheme.small
+                                      .copyWith(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black45,
+                                        letterSpacing: 0.5,
+                                      ),
                                 ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildActionCard(
+                                      context: context,
+                                      icon: LucideIcons.circlePlus,
+                                      label: 'Income',
+                                      color: Colors.green.shade50,
+                                      iconColor: Colors.green.shade700,
+                                      onPressed: () => showShadSheet(
+                                        side: ShadSheetSide.bottom,
+                                        context: context,
+                                        builder: (context) =>
+                                            _showAddIncomeSheet(
+                                              context,
+                                              incomeController,
+                                              ShadSheetSide.bottom,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildActionCard(
+                                      context: context,
+                                      icon: LucideIcons.circleMinus,
+                                      label: 'Expense',
+                                      color: Colors.red.shade50,
+                                      iconColor: Colors.red.shade700,
+                                      onPressed: () => showShadSheet(
+                                        side: ShadSheetSide.bottom,
+                                        context: context,
+                                        builder: (context) =>
+                                            _showAddExpenseSheet(
+                                              context,
+                                              expenseController,
+                                              ShadSheetSide.bottom,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildActionCard(
+                                      context: context,
+                                      icon: LucideIcons.target,
+                                      label: 'Goal',
+                                      color: Colors.blue.shade50,
+                                      iconColor: Colors.blue.shade700,
+                                      onPressed: () {},
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildActionCard(
+                                      context: context,
+                                      icon: LucideIcons.chartArea400,
+                                      label: 'Reports',
+                                      color: Colors.purple.shade50,
+                                      iconColor: Colors.purple.shade700,
+                                      onPressed: () {},
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ),
 
@@ -321,9 +317,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
                   isTablet ? 32 : 20,
-                  isTablet ? 32 : 24,
+                  isTablet ? 32 : 15,
                   isTablet ? 32 : 20,
-                  isTablet ? 12 : 8,
+                  isTablet ? 12 : 5,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -354,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             SliverPadding(
               padding: EdgeInsets.symmetric(
-                horizontal: isTablet ? 32 : 20,
+                horizontal: isTablet ? 32 : 15,
                 vertical: 8,
               ),
               sliver: StreamBuilder<List<RecentActivityData>>(
@@ -374,24 +370,51 @@ class _HomeScreenState extends State<HomeScreen> {
                   final activities = snapshot.data!;
                   if (activities.isEmpty) {
                     return SliverToBoxAdapter(
-                      child: Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Text(
-                            'No recent activity found.',
-                            style: ShadTheme.of(context).textTheme.small
-                                .copyWith(
-                                  color: const Color(0xFF6B6B6B),
-                                  fontSize: 12,
-                                ),
-                          ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 80,
+                          horizontal: 24,
+                        ),
+                        child: Column(
+                          children: [
+                            TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              duration: const Duration(milliseconds: 500),
+                              builder: (context, value, child) {
+                                return Opacity(
+                                  opacity: value,
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        LucideIcons.fileText,
+                                        size: 60,
+                                        color: Colors.grey.shade300,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'No recent transactions found',
+                                        style: ShadTheme.of(context)
+                                            .textTheme
+                                            .small
+                                            .copyWith(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black54,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     );
                   }
 
                   return SliverList.builder(
-                    itemCount: activities.length > 4 ? 4 : activities.length,
+                    itemCount: activities.length > 20 ? 20 : activities.length,
                     itemBuilder: (context, index) {
                       final activity = activities[index];
                       final isIncome = activity.type == 'income';
@@ -442,66 +465,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _buildChartPlaceholder(isTablet),
               ),
             ),
-
-            SliverPadding(
-              padding: EdgeInsets.fromLTRB(
-                isTablet ? 32 : 20,
-                8,
-                isTablet ? 32 : 20,
-                isTablet ? 32 : 24,
-              ),
-              sliver: SliverList(delegate: SliverChildListDelegate([])),
-            ),
           ],
         ),
-      ),
-
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Income Button
-          FloatingActionButton(
-            heroTag: 'add-income',
-            onPressed: () => showShadSheet(
-              side: ShadSheetSide.bottom,
-              context: context,
-              builder: (context) => _showAddIncomeSheet(
-                context,
-                incomeController,
-                ShadSheetSide.bottom,
-              ),
-            ),
-            backgroundColor: const Color(0xFF7C3AED),
-            elevation: 2,
-            child: const Icon(
-              LucideIcons.arrowUp,
-              color: Colors.white,
-              size: 24,
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Expense Button
-          FloatingActionButton(
-            heroTag: 'add-expense',
-            onPressed: () => showShadSheet(
-              side: ShadSheetSide.bottom,
-              context: context,
-              builder: (context) => _showAddExpenseSheet(
-                context,
-                expenseController,
-                ShadSheetSide.bottom,
-              ),
-            ),
-            backgroundColor: const Color(0xFFEF4444),
-            elevation: 2,
-            child: const Icon(
-              LucideIcons.arrowDown,
-              color: Colors.white,
-              size: 24,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -582,56 +547,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildActionCard(
-    String label,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.1), width: 1),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: color, size: 28),
-              ),
-              const SizedBox(height: 12),
-              Flexible(
-                child: Text(
-                  label,
-                  style: ShadTheme.of(context).textTheme.h4.copyWith(
-                    fontSize: 14,
-                    color: const Color(0xFF1A1A1A),
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -844,9 +759,65 @@ Widget _showAddExpenseSheet(
   );
 }
 
-Widget _buildActionButton({required IconData icon, required String label}) {
-  return Column(children: [
+Widget _buildActionCard({
+  required BuildContext context,
+  required IconData icon,
+  required String label,
+  required Color color,
+  required Color iconColor,
+  required VoidCallback onPressed,
+}) {
+  return Material(
+    color: Colors.transparent,
+    child: InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.black.withOpacity(0.05), width: 1),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.7),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 24, color: iconColor),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
-    ],
+Widget _buildAnimatedText({required String text}) {
+  return SizedBox(
+    width: 250.0,
+    child: DefaultTextStyle(
+      style: TextStyle(fontSize: 30.0, fontFamily: 'Agne'),
+      child: AnimatedTextKit(
+        animatedTexts: [TypewriterAnimatedText(text)],
+        repeatForever: true,
+      ),
+    ),
   );
 }

@@ -14,6 +14,8 @@ class FinanceService extends GetxService {
   final totalIncome = 0.0.obs;
   final totalExpense = 0.0.obs;
   final RxDouble netBalance = 0.0.obs;
+  // In your FinanceService class
+  final RxBool isBalanceVisible = true.obs;
 
   FinanceService(this.db) {
     expenseDao = db.expenseDao;
@@ -42,5 +44,9 @@ class FinanceService extends GetxService {
 
   void _computeNet() {
     netBalance.value = totalIncome.value - totalExpense.value;
+  }
+
+  void toggleBalanceVisibility() {
+    isBalanceVisible.value = !isBalanceVisible.value;
   }
 }
