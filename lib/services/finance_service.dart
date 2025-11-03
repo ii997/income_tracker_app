@@ -23,10 +23,11 @@ class FinanceService extends GetxService {
   }
 
   Future<void> init() async {
+    final now = DateTime.now();
     incomeDao.watchTotalIncome().listen((value) {
       totalIncome.value = value;
     });
-    expenseDao.watchTotalExpense().listen((value) {
+    expenseDao.watchTotalExpense(now.year, now.month).listen((value) {
       totalExpense.value = value;
     });
 

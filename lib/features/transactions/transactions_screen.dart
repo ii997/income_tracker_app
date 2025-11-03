@@ -4,7 +4,6 @@ import 'package:income_tracker_app/data/local/app_database.dart';
 import 'package:income_tracker_app/features/transactions/activity_controller.dart';
 import 'package:income_tracker_app/utils/currency_helper.dart';
 import 'package:income_tracker_app/utils/date_formatter.dart';
-import 'package:path/path.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class TransactionsScreen extends StatelessWidget {

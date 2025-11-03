@@ -40,8 +40,14 @@ class ExpenseDao extends DatabaseAccessor<AppDatabase> with _$ExpenseDaoMixin {
   }
 
   // in expense_dao.dart
-  Stream<double> watchTotalExpense() {
-    return (select(expenses)..where((tbl) => tbl.amount.isBiggerThanValue(0)))
+  Stream<double> watchTotalExpense(int year, int month) {
+    final startOfMonth = DateTime(year, month, 1);
+    final endOfMonth = DateTime(year, month + 1, 1);
+
+    return (select(expenses)
+          ..where((tbl) => tbl.amount.isBiggerThanValue(0))
+          ..where((tbl) => tbl.createdAt.isBiggerOrEqualValue(startOfMonth))
+          ..where((tbl) => tbl.createdAt.isSmallerThanValue(endOfMonth)))
         .watch()
         .map((rows) => rows.fold<double>(0.0, (sum, row) => sum + row.amount));
   }

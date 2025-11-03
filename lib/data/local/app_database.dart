@@ -1,11 +1,7 @@
-import 'dart:io';
-
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:income_tracker_app/data/local/daos/activity_dao.dart';
 import 'package:income_tracker_app/data/local/daos/expense_dao.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 // 👈 this one!
 import 'daos/income_dao.dart';
 part 'app_database.g.dart';

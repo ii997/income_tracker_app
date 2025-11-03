@@ -2,7 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:income_tracker_app/features/home/home_controller.dart';
-import 'package:path/path.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class IncomeExpenseChart extends StatelessWidget {

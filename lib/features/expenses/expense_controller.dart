@@ -25,8 +25,13 @@ class ExpenseController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    expenseDao.watchTotalExpense().listen((value) {
-      totalExpense.value = value;
+    watchCurrentMonthExpense();
+  }
+
+  void watchCurrentMonthExpense() {
+    final now = DateTime.now();
+    expenseDao.watchTotalExpense(now.year, now.month).listen((total) {
+      totalExpense.value = total;
     });
   }
 

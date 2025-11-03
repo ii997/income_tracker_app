@@ -793,9 +793,9 @@ Widget _buildActionCard({
             const SizedBox(height: 8),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
+              style: GoogleFonts.poppins(
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
                 color: Colors.black87,
               ),
               textAlign: TextAlign.center,
